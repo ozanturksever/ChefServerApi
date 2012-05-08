@@ -1,6 +1,12 @@
 <?php
 
-class ChefServerApi {
+/**
+ * Chef Server Api Class
+ *
+ * @uses openssl
+ *
+ */
+class ChefServer {
 
   private $con;
   private $header;
@@ -8,6 +14,13 @@ class ChefServerApi {
   private $chefVersion = '0.10.8';
   private $userAgent = 'php chef client 0.0.1';
   
+  /**
+   * Constructor Class.
+   * @param string $host
+   * @param int $port
+   * @param string $userid // Crowbar Client Id
+   * @param string $keyfile // Crowbar Access Key File
+   */
   public function __construct($host, $port, $userid, $keyfile='/etc/chef/client.key') {
     $this->con = curl_init();
     $this->host = $host;
@@ -34,7 +47,8 @@ class ChefServerApi {
   }
   
   private function getAuthorizationHeaders($signedContent) {
-    $sigs = split("\n", chunk_split(base64_encode($signedContent), 60));
+    //$sigs = split("\n", chunk_split(base64_encode($signedContent), 60));
+    $sigs = explode("\n", chunk_split(base64_encode($signedContent), 60));
     for($i=0;$i<count($sigs);$i++) {
 	$h[] = "X-Ops-Authorization-".($i+1).": ".trim($sigs[$i]);
     }
@@ -62,7 +76,7 @@ class ChefServerApi {
 	$h[] = "X-Ops-Sign: ".$this->signVersion;
 	$h[] = "X-Ops-Content-Hash: ".$this->getContentHash($content);
 	$h[] = "X-Ops-Timestamp: ".$this->getTime();
-	$h[] = "Host: ".$this->getUrl();
+	//$h[] = "Host: ".$this->getUrl();
 	$h[] = "Accept: application/json";
 	$h[] = "X-Chef-Version: ".$this->chefVersion;
 	$h[] = "User-Agent: ".$this->userAgent;
@@ -92,8 +106,9 @@ class ChefServerApi {
     } else {
 	curl_setopt($this->con, CURLOPT_CUSTOMREQUEST, 'GET');
 	curl_setopt($this->con, CURLOPT_POST, false);
-	curl_setopt($this->con, CURLOPT_GET, true);
+	curl_setopt($this->con, CURLOPT_HTTPGET, true);
     }
+    
   }
 
   private function execute($headers) {
@@ -102,6 +117,7 @@ class ChefServerApi {
   }
   
   public function get($uri) {
+//  	echo "get fonksiyonu : ".$uri."<br>";
     $this->prepare($uri, 'GET', '');
     $headers = $this->getHeaders('GET', $uri);
     return (object) json_decode($this->execute($headers));
@@ -115,6 +131,7 @@ class ChefServerApi {
   }
 
   public function put($uri, $id, $data) {
+//  	echo "put fonksiyonu : ".$uri."- id: $id - <br>";
     $encodedData = json_encode($data);
     $path = $uri.'/'.$id;
     $this->prepare($path, 'PUT', $encodedData);
@@ -130,8 +147,8 @@ class ChefServerApi {
   }
   
 }
-
-//$api = new ChefServerApi("192.168.124.10",4000,'webserver');
+//Example
+//$api = new ChefServer("192.168.124.10",4000,'webserver');
 //echo "<pre>";
 //var_dump( $api->get('/clients') );
 //var_dump( $api->get('/data/test') );
