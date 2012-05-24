@@ -77,7 +77,7 @@ class ChefServer{
 		$h[] = "X-Chef-Version: " . $this->chefVersion;
 		$h[] = "User-Agent: " . $this->userAgent;
 		$h[] = "Content-Type: application/json";
-		$h[] = "Connection: close";
+		//$h[] = "Connection: close";
 		return array_merge($aHeaders, $h);
 	}
 	private function setDst($uri){
