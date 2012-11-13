@@ -4,7 +4,7 @@ Server Api: http://wiki.opscode.com/display/chef/Server+API
 
 Examples:
 // Connectiong
-$api = new ChefServerApi("192.168.124.10",4000,'webserver', '/etc/chef/client.key');
+$api = new ChefServer("192.168.124.10",4000,'webserver', '/etc/chef/client.key');
 // geting client list
 var_dump( $api->get('/clients') );
 // getting node list
